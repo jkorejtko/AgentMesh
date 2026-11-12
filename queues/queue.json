@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "queueId": "default",
+  "name": "Default Agent Queue",
+  "description": "Persistent task queue for autonomous AI agent workflows",
+  "config": {
+    "maxConcurrency": 3,
+    "maxAttempts": 3,
+    "retryDelaySeconds": 30,
+    "stopOnFailure": false,
+    "requireApprovalForCodeChanges": true
+  },
+  "tasks": []
+}

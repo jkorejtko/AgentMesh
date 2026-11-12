@@ -1,0 +1,17 @@
+{
+  "id": "task-001",
+  "title": "Task title",
+  "description": "Detailed task description",
+  "type": "analysis",
+  "priority": 2,
+  "dependencies": [],
+  "preferredAgent": "auto",
+  "requiredSkills": [],
+  "approvalRequired": false,
+  "acceptanceCriteria": [],
+  "context": {
+    "projectPath": null,
+    "files": [],
+    "notes": null
+  }
+}
