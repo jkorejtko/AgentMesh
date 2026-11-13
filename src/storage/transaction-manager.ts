@@ -1,17 +1,17 @@
-import { randomUUID } from "node:crypto";
-import { resolve } from "node:path";
+import { randomUUID } from 'node:crypto';
+import { resolve } from 'node:path';
 
-import { QueueSchema, QueueStateSchema } from "../core/schemas.js";
+import { QueueSchema, QueueStateSchema } from '../core/schemas.js';
 
 import {
   TransactionJournalSchema,
   type Transaction,
   type TransactionJournal,
-} from "./transaction-schema.js";
+} from './transaction-schema.js';
 
-import { readJson, writeJsonRaw } from "./json-store.js";
+import { readJson, writeJsonRaw } from './json-store.js';
 
-import type { Queue, QueueState } from "../core/schemas.js";
+import type { Queue, QueueState } from '../core/schemas.js';
 
 export class TransactionManager {
   private readonly journalPath: string;
@@ -19,9 +19,9 @@ export class TransactionManager {
   private readonly statePath: string;
 
   constructor(rootDir: string) {
-    this.journalPath = resolve(rootDir, "transactions/journal.json");
-    this.queuePath = resolve(rootDir, "queues/queue.json");
-    this.statePath = resolve(rootDir, "queues/state.json");
+    this.journalPath = resolve(rootDir, 'journal.json');
+    this.queuePath = resolve(rootDir, 'queue.json');
+    this.statePath = resolve(rootDir, 'state.json');
   }
 
   async commit(queue: Queue, state: QueueState): Promise<void> {
@@ -30,7 +30,7 @@ export class TransactionManager {
 
     const transaction: Transaction = {
       id: randomUUID(),
-      status: "prepared",
+      status: 'prepared',
       createdAt: new Date().toISOString(),
       queue: validatedQueue,
       state: validatedState,

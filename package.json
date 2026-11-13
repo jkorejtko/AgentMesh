@@ -13,16 +13,16 @@
   "license": "MIT",
   "author": "",
   "type": "module",
-  "main": "./dist/index.js",
   "scripts": {
-    "test": "tsx --test src/core/*.test.ts src/storage/*.test.ts",
     "dev": "tsx src/cli/index.ts",
-    "typecheck": "tsc --noEmit",
     "start": "tsx src/cli/index.ts",
+    "test": "tsx --test src/core/*.test.ts src/storage/*.test.ts",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
-    "format:check": "oxfmt --check"
+    "format:check": "oxfmt --check",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check"
   },
   "dependencies": {
     "zod": "^4.6.7"
@@ -34,6 +34,7 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
+  "packageManager": "pnpm@10.11.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"

@@ -1,15 +1,15 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // -----------------------------------------------------------------------------
 // Task definition
 // -----------------------------------------------------------------------------
 
 export const TaskTypeSchema = z.enum([
-  "analysis",
-  "implementation",
-  "testing",
-  "review",
-  "documentation",
+  'analysis',
+  'implementation',
+  'testing',
+  'review',
+  'documentation',
 ]);
 
 export const TaskPrioritySchema = z.number().int().min(1).max(5);
@@ -21,7 +21,7 @@ export const TaskDefinitionSchema = z.object({
   type: TaskTypeSchema,
   priority: TaskPrioritySchema,
   dependencies: z.array(z.string()).default([]),
-  preferredAgent: z.string().default("auto"),
+  preferredAgent: z.string().default('auto'),
   requiredSkills: z.array(z.string()).default([]),
   approvalRequired: z.boolean().default(false),
   acceptanceCriteria: z.array(z.string()).default([]),
@@ -60,16 +60,16 @@ export const QueueSchema = z.object({
 // -----------------------------------------------------------------------------
 
 export const TaskStatusSchema = z.enum([
-  "pending",
-  "ready",
-  "delegating",
-  "running",
-  "awaiting_approval",
-  "completed",
-  "failed",
-  "blocked",
-  "skipped",
-  "cancelled",
+  'pending',
+  'ready',
+  'delegating',
+  'running',
+  'awaiting_approval',
+  'completed',
+  'failed',
+  'blocked',
+  'skipped',
+  'cancelled',
 ]);
 
 export const AgentSchema = z.object({
@@ -121,7 +121,7 @@ export const QueueStatsSchema = z.object({
 export const QueueStateSchema = z.object({
   schemaVersion: z.literal(1),
   queueId: z.string().min(1),
-  status: z.enum(["idle", "running", "paused", "completed"]),
+  status: z.enum(['idle', 'running', 'paused', 'completed']),
   activeRunId: z.string().nullable(),
   createdAt: z.string().datetime().nullable(),
   updatedAt: z.string().datetime().nullable(),
