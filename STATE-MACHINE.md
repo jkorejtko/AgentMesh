@@ -48,4 +48,3 @@
 - Code changes require explicit approval
 - Analysis and planning tasks can run without approval
 - Cancellation must not silently discard completed work
-

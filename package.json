@@ -1,24 +1,42 @@
 {
-  "name": "my-agent-workflows",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "agentmesh",
+  "version": "0.1.0",
+  "description": "A persistent, provider-agnostic orchestration engine for AI agents.",
+  "keywords": [
+    "agents",
+    "ai",
+    "multi-agent",
+    "orchestration",
+    "task-queue",
+    "workflow"
+  ],
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "tsx --test src/core/*.test.ts src/storage/*.test.ts",
     "dev": "tsx src/cli/index.ts",
     "typecheck": "tsc --noEmit",
-    "start": "tsx src/cli/index.ts"
+    "start": "tsx src/cli/index.ts",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

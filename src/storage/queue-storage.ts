@@ -1,16 +1,10 @@
+import { resolve } from "node:path";
 
-import { resolve } from 'node:path';
+import { QueueSchema, QueueStateSchema, type Queue, type QueueState } from "../core/schemas.js";
 
-import {
-  QueueSchema,
-  QueueStateSchema,
-  type Queue,
-  type QueueState,
-} from '../core/schemas.js';
-
-import { AsyncMutex } from './async-mutex.js';
-import { readJson } from './json-store.js';
-import { TransactionManager } from './transaction-manager.js';
+import { AsyncMutex } from "./async-mutex.js";
+import { readJson } from "./json-store.js";
+import { TransactionManager } from "./transaction-manager.js";
 
 export class QueueStorage {
   private readonly queuePath: string;
@@ -19,14 +13,12 @@ export class QueueStorage {
   private readonly mutex = new AsyncMutex();
 
   constructor(rootDir: string) {
-    this.queuePath = resolve(rootDir, 'queues/queue.json');
-    this.statePath = resolve(rootDir, 'queues/state.json');
+    this.queuePath = resolve(rootDir, "queues/queue.json");
+    this.statePath = resolve(rootDir, "queues/state.json");
     this.transactions = new TransactionManager(rootDir);
   }
 
-  async runExclusive<T>(
-    operation: () => Promise<T>,
-  ): Promise<T> {
+  async runExclusive<T>(operation: () => Promise<T>): Promise<T> {
     return this.mutex.runExclusive(operation);
   }
 

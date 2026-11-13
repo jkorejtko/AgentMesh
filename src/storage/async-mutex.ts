@@ -1,4 +1,3 @@
-
 export class AsyncMutex {
   private tail: Promise<void> = Promise.resolve();
 
@@ -20,4 +19,3 @@ export class AsyncMutex {
     }
   }
 }
-

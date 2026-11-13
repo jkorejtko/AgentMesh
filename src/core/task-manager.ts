@@ -1,16 +1,9 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 
-import type {
-  Queue,
-  QueueState,
-  TaskDefinition,
-  TaskRuntime,
-  TaskStatus,
-} from './schemas.js';
+import type { Queue, QueueState, TaskDefinition, TaskRuntime, TaskStatus } from "./schemas.js";
 
-import { assertTransition } from './task-lifecycle.js';
-import { QueueStorage } from '../storage/queue-storage.js';
-
+import { assertTransition } from "./task-lifecycle.js";
+import { QueueStorage } from "../storage/queue-storage.js";
 
 export interface DelegationResult {
   taskIdExternal: string;
@@ -20,11 +13,8 @@ export interface DelegationResult {
   model: string | null;
 }
 
-
 export class TaskManager {
-  constructor(
-    private readonly storage: QueueStorage,
-  ) {}
+  constructor(private readonly storage: QueueStorage) {}
 
   async initialize(): Promise<void> {
     await this.storage.runExclusive(async () => {
@@ -45,9 +35,7 @@ export class TaskManager {
     });
   }
 
-  async addTask(
-    input: Omit<TaskDefinition, 'id'> & { id?: string },
-  ): Promise<TaskDefinition> {
+  async addTask(input: Omit<TaskDefinition, "id"> & { id?: string }): Promise<TaskDefinition> {
     return this.storage.runExclusive(async () => {
       const queue = await this.storage.loadQueue();
       const state = await this.storage.loadState();
@@ -63,7 +51,7 @@ export class TaskManager {
 
       for (const dependency of task.dependencies) {
         if (dependency === task.id) {
-          throw new Error('Task cannot depend on itself');
+          throw new Error("Task cannot depend on itself");
         }
 
         if (!queue.tasks.some((item) => item.id === dependency)) {
@@ -90,24 +78,20 @@ export class TaskManager {
       return queue.tasks.filter((task) => {
         const runtime = state.tasks[task.id];
 
-        if (!runtime || runtime.status !== 'ready') {
+        if (!runtime || runtime.status !== "ready") {
           return false;
         }
 
         return task.dependencies.every(
-          (dependency) => state.tasks[dependency]?.status === 'completed',
+          (dependency) => state.tasks[dependency]?.status === "completed",
         );
       });
     });
   }
 
-
-  async prepareDelegation(
-    taskId: string,
-    parentThreadId: string,
-  ): Promise<string> {
+  async prepareDelegation(taskId: string, parentThreadId: string): Promise<string> {
     if (!parentThreadId.trim()) {
-      throw new Error('Parent thread ID is required');
+      throw new Error("Parent thread ID is required");
     }
 
     return this.storage.runExclusive(async () => {
@@ -120,10 +104,8 @@ export class TaskManager {
         throw new Error(`Unknown task: ${taskId}`);
       }
 
-      if (runtime.status !== 'ready') {
-        throw new Error(
-          `Task must be ready before delegation: ${taskId}`,
-        );
+      if (runtime.status !== "ready") {
+        throw new Error(`Task must be ready before delegation: ${taskId}`);
       }
 
       const attempt = runtime.attempts + 1;
@@ -131,7 +113,7 @@ export class TaskManager {
 
       state.tasks[taskId] = {
         ...runtime,
-        status: 'delegating',
+        status: "delegating",
         attempts: attempt,
         agent: {
           taskId,
@@ -154,7 +136,6 @@ export class TaskManager {
     });
   }
 
-
   async completeDelegation(
     taskId: string,
     clientRequestId: string,
@@ -170,7 +151,7 @@ export class TaskManager {
         throw new Error(`Unknown task: ${taskId}`);
       }
 
-      if (runtime.status !== 'delegating' || !runtime.agent) {
+      if (runtime.status !== "delegating" || !runtime.agent) {
         throw new Error(`Task is not awaiting delegation: ${taskId}`);
       }
 
@@ -191,7 +172,7 @@ export class TaskManager {
 
       state.tasks[taskId] = {
         ...runtime,
-        status: 'running',
+        status: "running",
         agent: {
           ...runtime.agent,
           taskIdExternal: result.taskIdExternal,
@@ -208,9 +189,6 @@ export class TaskManager {
     });
   }
 
-
-
-  
   async transitionTask(
     taskId: string,
     nextStatus: TaskStatus,
@@ -241,8 +219,6 @@ export class TaskManager {
     });
   }
 
-
-  
   async refreshReadyTasks(): Promise<void> {
     await this.storage.runExclusive(async () => {
       const queue = await this.storage.loadQueue();
@@ -256,7 +232,7 @@ export class TaskManager {
         for (const task of queue.tasks) {
           const runtime = state.tasks[task.id];
 
-          if (!runtime || runtime.status !== 'pending') {
+          if (!runtime || runtime.status !== "pending") {
             continue;
           }
 
@@ -265,18 +241,15 @@ export class TaskManager {
           );
 
           const hasFailedDependency = dependencyStatuses.some(
-            (status) =>
-              status === 'failed' ||
-              status === 'blocked' ||
-              status === 'cancelled',
+            (status) => status === "failed" || status === "blocked" || status === "cancelled",
           );
 
           if (hasFailedDependency) {
-            assertTransition(runtime.status, 'blocked');
+            assertTransition(runtime.status, "blocked");
 
             state.tasks[task.id] = {
               ...runtime,
-              status: 'blocked',
+              status: "blocked",
             };
 
             hasChanges = true;
@@ -284,15 +257,15 @@ export class TaskManager {
           }
 
           const dependenciesCompleted = dependencyStatuses.every(
-            (status) => status === 'completed',
+            (status) => status === "completed",
           );
 
           if (dependenciesCompleted) {
-            assertTransition(runtime.status, 'ready');
+            assertTransition(runtime.status, "ready");
 
             state.tasks[task.id] = {
               ...runtime,
-              status: 'ready',
+              status: "ready",
             };
 
             hasChanges = true;
@@ -305,10 +278,9 @@ export class TaskManager {
     });
   }
 
-
   private createRuntime(): TaskRuntime {
     return {
-      status: 'pending',
+      status: "pending",
       attempts: 0,
       agent: null,
       startedAt: null,
@@ -318,30 +290,23 @@ export class TaskManager {
     };
   }
 
-  
-  private recalculateStats(
-    queue: Queue,
-    state: QueueState,
-  ): void {
+  private recalculateStats(queue: Queue, state: QueueState): void {
     const runtimes = Object.values(state.tasks);
 
     state.stats = {
       total: queue.tasks.length,
-      pending: runtimes.filter((task) => task.status === 'pending').length,
-      ready: runtimes.filter((task) => task.status === 'ready').length,
-      delegating: runtimes.filter((task) => task.status === 'delegating').length,
-      running: runtimes.filter((task) => task.status === 'running').length,
-      awaitingApproval: runtimes.filter(
-        (task) => task.status === 'awaiting_approval',
-      ).length,
-      completed: runtimes.filter((task) => task.status === 'completed').length,
-      failed: runtimes.filter((task) => task.status === 'failed').length,
-      blocked: runtimes.filter((task) => task.status === 'blocked').length,
-      skipped: runtimes.filter((task) => task.status === 'skipped').length,
-      cancelled: runtimes.filter((task) => task.status === 'cancelled').length,
+      pending: runtimes.filter((task) => task.status === "pending").length,
+      ready: runtimes.filter((task) => task.status === "ready").length,
+      delegating: runtimes.filter((task) => task.status === "delegating").length,
+      running: runtimes.filter((task) => task.status === "running").length,
+      awaitingApproval: runtimes.filter((task) => task.status === "awaiting_approval").length,
+      completed: runtimes.filter((task) => task.status === "completed").length,
+      failed: runtimes.filter((task) => task.status === "failed").length,
+      blocked: runtimes.filter((task) => task.status === "blocked").length,
+      skipped: runtimes.filter((task) => task.status === "skipped").length,
+      cancelled: runtimes.filter((task) => task.status === "cancelled").length,
     };
 
     state.updatedAt = new Date().toISOString();
   }
-
 }
